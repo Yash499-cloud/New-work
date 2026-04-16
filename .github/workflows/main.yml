@@ -1,0 +1,10 @@
+name: SSH-Shell
+on: workflow_dispatch # Isse aap manual start kar payenge
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Get High Power Shell
+      uses: mxschmitt/action-tmate@v3
+      
