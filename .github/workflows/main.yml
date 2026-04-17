@@ -7,8 +7,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Start SSH Shell (Singapore)
+      - name: Start SSH Shell (Forced Singapore)
         uses: mxschmitt/action-tmate@v3
-        env:
-          TMATE_OPTS: "-r ap-southeast-1"
+        with:
+          limit-access-to-actor: false
+          tmate-server-host: sgp1.tmate.io
           
