@@ -1,31 +1,14 @@
 name: Recovery-Builder-Shell
 
 on:
-  workflow_dispatch: # Manual start karne ke liye
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: System Cleanup & Space Maximize
-        run: |
-          sudo rm -rf /usr/share/dotnet
-          sudo rm -rf /opt/ghc
-          sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-
-      - name: Install Build Dependencies
-        run: |
-          sudo apt update
-          sudo apt install -y gperf gcc-multilib gcc-10-multilib g++-multilib g++-10-multilib \
-          libc6-dev-i386 lib32ncurses5-dev x11proto-core-dev libx11-dev lib32z1-dev \
-          libgl1-mesa-dev libxml2-utils xsltproc unzip bc python3 git zip curl
-
-      - name: Start SSH Shell (Singapore Region)
+      - name: Start SSH Shell (Singapore)
         uses: mxschmitt/action-tmate@v3
         env:
-          TMATE_OPTS: "-r ap-southeast-1" # India ke liye fastest region
+          TMATE_OPTS: "-r ap-southeast-1"
           
