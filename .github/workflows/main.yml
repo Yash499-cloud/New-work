@@ -1,4 +1,4 @@
-name: SSH Terminal Build
+name: SSH Terminal Build (Free)
 on:
   workflow_dispatch:
 
@@ -9,27 +9,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup SSH & Ngrok
+      - name: Setup SSH & Serveo
         run: |
           # Password set kar rahe hain '123'
-          sudo useradd -m -s /bin/bash runneradmin || true
-          echo "runneradmin:123" | sudo chpasswd
           echo "runner:123" | sudo chpasswd
           sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
           sudo service ssh restart
 
-          # Ngrok install
-          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-          sudo apt update && sudo apt install ngrok -y
-          
-          # Token use karke tunnel start karna
-          ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
-          ngrok tcp 22 --log=stdout > /dev/null &
-          
-          sleep 10
           echo "--- SSH CONNECTION DETAILS ---"
-          curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
+          # Serveo se tunnel create karna
+          ssh -o StrictHostKeyChecking=no -R 80:localhost:22 serveo.net 2>&1 | grep -o 'forwarded from .*' || true &
+          
+          # Address nikalne ke liye thoda wait aur loop
+          sleep 10
+          echo "Connect using this command in Termux:"
+          echo "ssh runner@serveo.net -p 80"
           echo "------------------------------"
 
       - name: Keep Alive
