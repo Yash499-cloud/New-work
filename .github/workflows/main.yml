@@ -1,18 +1,7 @@
-name: SSH Terminal Build
-on:
-  workflow_dispatch:
-
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-
     - name: Setup SSH & Ngrok
       run: |
-        # Password set kar rahe hain '123'
-        echo "runneradmin:123" | sudo chpasswd
+        # Default user 'runner' ka password '123' set karein
+        echo "runner:123" | sudo chpasswd
         sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
         sudo service ssh restart
 
@@ -29,7 +18,4 @@ jobs:
         echo "--- SSH CONNECTION DETAILS ---"
         curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
         echo "------------------------------"
-
-    - name: Keep Alive
-      run: sleep 21600
-      
+        
