@@ -1,21 +1,37 @@
-    - name: Setup SSH & Ngrok
-      run: |
-        # Default user 'runner' ka password '123' set karein
-        echo "runner:123" | sudo chpasswd
-        sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
-        sudo service ssh restart
+name: SSH Terminal Build
+on:
+  workflow_dispatch:
 
-        # Ngrok install
-        curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
-        echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
-        sudo apt update && sudo apt install ngrok -y
-        
-        # Token use karke tunnel start karna
-        ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
-        ngrok tcp 22 --log=stdout > /dev/null &
-        
-        sleep 10
-        echo "--- SSH CONNECTION DETAILS ---"
-        curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
-        echo "------------------------------"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup SSH & Ngrok
+        run: |
+          # Password set kar rahe hain '123'
+          sudo useradd -m -s /bin/bash runneradmin || true
+          echo "runneradmin:123" | sudo chpasswd
+          echo "runner:123" | sudo chpasswd
+          sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
+          sudo service ssh restart
+
+          # Ngrok install
+          curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc | sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null
+          echo "deb https://ngrok-agent.s3.amazonaws.com buster main" | sudo tee /etc/apt/sources.list.d/ngrok.list
+          sudo apt update && sudo apt install ngrok -y
+          
+          # Token use karke tunnel start karna
+          ngrok config add-authtoken ${{ secrets.NGROK_TOKEN }}
+          ngrok tcp 22 --log=stdout > /dev/null &
+          
+          sleep 10
+          echo "--- SSH CONNECTION DETAILS ---"
+          curl -s http://localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'
+          echo "------------------------------"
+
+      - name: Keep Alive
+        run: sleep 21600
         
