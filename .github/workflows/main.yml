@@ -1,4 +1,4 @@
-name: SSH Terminal Build (Free)
+name: SSH Terminal (Cloudflared)
 on:
   workflow_dispatch:
 
@@ -9,23 +9,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup SSH & Serveo
+      - name: Setup SSH & Cloudflared
         run: |
-          # Password set kar rahe hain '123'
+          # Password '123' set karein
           echo "runner:123" | sudo chpasswd
           sudo sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config
           sudo service ssh restart
 
-          echo "--- SSH CONNECTION DETAILS ---"
-          # Serveo se tunnel create karna
-          ssh -o StrictHostKeyChecking=no -R 80:localhost:22 serveo.net 2>&1 | grep -o 'forwarded from .*' || true &
-          
-          # Address nikalne ke liye thoda wait aur loop
-          sleep 10
-          echo "Connect using this command in Termux:"
-          echo "ssh runner@serveo.net -p 80"
-          echo "------------------------------"
+          # Cloudflared install karein
+          curl -L --output cloudflared.deb https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
+          sudo dpkg -i cloudflared.deb
 
-      - name: Keep Alive
-        run: sleep 21600
-        
+          echo "--- SSH CONNECTION DETAILS ---"
+          # Tunnel start karein
+          cloudflared tunnel --url ssh://localhost:22
+          
