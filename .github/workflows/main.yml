@@ -2,14 +2,23 @@ name: Recovery-Builder-Shell
 
 on:
   workflow_dispatch:
+    inputs:
+      debug_enabled:
+        description: 'Run with tmate debugging'
+        required: false
+        default: 'true'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Start SSH Shell (Forced Singapore)
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Start SSH Shell (Singapore Server)
+        if: ${{ github.event.inputs.debug_enabled == 'true' }}
         uses: mxschmitt/action-tmate@v3
         with:
-          limit-access-to-actor: false
+          limit-access-to-actor: true
           tmate-server-host: sgp1.tmate.io
           
